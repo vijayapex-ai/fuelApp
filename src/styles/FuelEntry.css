@@ -1,0 +1,222 @@
+:root {
+  --primary: #4361ee;
+  --primary-dark: #3a52d1;
+  --background: #f8f9ff;
+  --surface: #ffffff;
+  --border: #e0e3f3;
+  --text-primary: #1a1d2b;
+  --text-secondary: #6a6f8c;
+}
+
+.fuel-sales-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+}
+
+.bill-number-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bill-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: rgba(67, 97, 238, 0.1);
+}
+
+.form-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input, select {
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--background);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: "▼";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+
+.product-section {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: flex-end;
+}
+
+.measurement-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.unit-display .unit-value {
+  background: rgba(67, 97, 238, 0.1);
+  color: var(--primary);
+  padding: 0.85rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.ok-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.ok-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.entries-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+}
+
+.entries-table th {
+  background: var(--background);
+  color: var(--text-secondary);
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.entries-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.mode-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.mode-pill.cash {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.mode-pill.credit {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.product-tag {
+  font-weight: 500;
+  color: var(--primary);
+  background: rgba(67, 97, 238, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .measurement-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .ok-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

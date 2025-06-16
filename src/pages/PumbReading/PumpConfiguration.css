@@ -1,0 +1,92 @@
+.pump-config-container {
+  max-width: 1000px;
+  margin: auto;
+  background-color: #f9fafb;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+.pump-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #e3e3e3;
+  transition: box-shadow 0.2s ease;
+}
+
+.pump-row:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.pump-row input,
+.pump-row select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+  font-size: 14px;
+}
+
+.pump-row input:focus,
+.pump-row select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  transition: background-color 0.3s ease;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.add-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.add-btn:hover {
+  background-color: #218838;
+}
+
+.submit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #0069d9;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 6px 10px;
+  font-size: 16px;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}

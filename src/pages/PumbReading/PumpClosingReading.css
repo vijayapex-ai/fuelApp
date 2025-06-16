@@ -1,0 +1,70 @@
+.pump-reading-container {
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8faff;
+}
+
+h2 {
+  color: #002b80;
+  text-align: center;
+  background: #d0e2ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+th {
+  background-color: #004080;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+}
+
+input:disabled {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+.submit-button {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background-color: #004080;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  float: right;
+}
+
+.submit-button:hover {
+  background-color: #002b66;
+}

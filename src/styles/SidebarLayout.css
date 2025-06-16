@@ -1,0 +1,138 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f5f7fa;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  background: #ffffff;
+  width: 240px;
+  transition: width 0.3s ease, padding 0.3s;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  padding: 20px 10px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FF0000;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  transition: transform 0.2s;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menu-item,
+.parent-item,
+.sub-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 10px;
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.menu-item .icon,
+.parent-item .icon,
+.sub-item .icon {
+  font-size: 20px;
+  margin-right: 14px;
+}
+
+.menu-item:hover,
+.parent-item:hover,
+.sub-item:hover {
+  background: #eaf4ff;
+  transform: translateX(2px);
+}
+
+.menu-item.active,
+.sub-item.active {
+  background-color: #d0e6ff;
+  font-weight: 600;
+  color: #0056b3;
+}
+
+.sidebar.collapsed .menu-item .label,
+.sidebar.collapsed .arrow {
+  display: none;
+}
+
+.arrow {
+  margin-left: auto;
+  padding-left: 10px;
+  font-size: 14px;
+}
+
+/* Submenu container */
+.submenu {
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  margin-top: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sub-item {
+  font-size: 0.95em;
+  padding: 4px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px 40px 30px 20px;
+  overflow-y: auto;
+}
+
+.content-body {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}

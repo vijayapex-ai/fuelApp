@@ -1,0 +1,50 @@
+{
+    "name": "fuel-sales-app",
+    "version": "1.0.0",
+    "main": "main/electron.js",
+    "scripts": {
+      "start": "concurrently \"npm run server\" \"npm run client\" \"npm run electron\"",
+      "client": "react-scripts start",
+      "electron": "wait-on http://localhost:3000 && electron .",
+      "server": "node server/index.js",
+      "build": "react-scripts build",
+      "dist": "electron-builder"
+    },
+    "build": {
+      "appId": "com.neuralwave.fuelsales",
+      "directories": {
+        "buildResources": "assets"
+      },
+      "files": [
+        "build/**/*",
+        "main/**/*",
+        "src/database/**/*"
+      ]
+    },
+    "browserslist": {
+      "production": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version"
+      ]
+    },
+    "dependencies": {
+      "cors": "^2.8.5",
+      "express": "^5.1.0",
+      "mysql2": "^3.14.0",
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1",
+      "react-router-dom": "^7.5.1",
+      "react-scripts": "^5.0.1"
+    },
+    "devDependencies": {
+      "concurrently": "^9.1.2",
+      "wait-on": "^8.0.3"
+    }
+  }
+  

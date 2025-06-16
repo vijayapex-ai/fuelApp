@@ -1,0 +1,47 @@
+/* General styles for the App container */
+.App {
+  text-align: center;
+}
+
+/* Styling for the logo */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none; /* Prevent interaction */
+  transition: transform 1s ease-in-out; /* Smooth transition for logo spin */
+}
+
+/* Animation for logo spin on preferred motion */
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+/* Header Styling */
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin); /* Fluid font size */
+  color: white;
+  padding: 20px; /* Padding to prevent content touching edges */
+}
+
+/* Link Styling */
+.App-link {
+  color: #61dafb;
+  text-decoration: none; /* Optional: remove underlining from the link */
+}
+
+/* Keyframe animation for the logo spin */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

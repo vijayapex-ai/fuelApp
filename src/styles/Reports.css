@@ -1,0 +1,65 @@
+.reports-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.reports-container h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.filter-section {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filter-section label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #444;
+}
+
+.filter-section input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.filter-section button {
+  align-self: end;
+  padding: 6px 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filter-section button:hover {
+  background-color: #0056b3;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table th,
+.report-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.report-table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+
+.report-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
