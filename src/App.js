@@ -12,7 +12,6 @@ import GSTSalesForm from './pages/GstBill';
 import Login from './pages/Login/Login';
 import PumpConfiguration from './pages/PumbReading/PumpConfiguration';
 import PumpClosingReading from './pages/PumbReading/PumpClosingReading';
-
 import PrivateRoute from './fpaths/PrivateRoute';
 import PublicRoute from './fpaths/PublicRoute';
 import DayBookEntry from './pages/Reports/DaybookEntry';
@@ -25,91 +24,23 @@ function App() {
   return (
     <Router>
       <Routes>
-
-        {/* Public Route for login */}
-        <Route
-          path="/"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-
-        {/* Protected Routes under SidebarLayout */}
+        <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
         <Route element={<SidebarLayout />}>
-          <Route
-            path="/home"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/fuel-entry"
-            element={
-              <PrivateRoute>
-                <FuelEntry />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/add-product" element= {<PrivateRoute> <AddProduct /> </PrivateRoute> }/>
-          <Route path="/add-gst" element= {<PrivateRoute><AddGSTTax /></PrivateRoute> } />
-          <Route path='/daybook' element={<PrivateRoute> <DayBookEntry/> </PrivateRoute>}/>
-          <Route path='/gstsalessumary' element={<PrivateRoute> <GSTSalesSummaryReport/> </PrivateRoute>} />
-          <Route path='/fullshiftreport' element={<PrivateRoute> <FullShiftReport/> </PrivateRoute>}/>
-          <Route path='/shift-report' element={<PrivateRoute> <ShiftReport/> </PrivateRoute>}/>
-          <Route path='/billlist-credit' element={<PrivateRoute> <BillListScreen/> </PrivateRoute>}/>
-
-          <Route
-            path="/add-productmaster"
-            element={
-              <PrivateRoute>
-                <ProductMaster />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/add-customermaster"
-            element={
-              <PrivateRoute>
-                <CustomerMaster />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/assign-vehicle"
-            element={
-              <PrivateRoute>
-                <AssignVehicle />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/gst-bill"
-            element={
-              <PrivateRoute>
-                <GSTSalesForm />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/pump-config"
-            element={
-              <PrivateRoute>
-                <PumpConfiguration />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/pump-reading"
-            element={
-              <PrivateRoute>
-                <PumpClosingReading />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/home" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/fuel-entry" element={<PrivateRoute><FuelEntry /></PrivateRoute>} />
+          <Route path="/add-product" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
+          <Route path="/add-gst" element={<PrivateRoute><AddGSTTax /></PrivateRoute>} />
+          <Route path="/daybook" element={<PrivateRoute><DayBookEntry /></PrivateRoute>} />
+          <Route path="/gstsalessumary" element={<PrivateRoute><GSTSalesSummaryReport /></PrivateRoute>} />
+          <Route path="/fullshiftreport" element={<PrivateRoute><FullShiftReport /></PrivateRoute>} />
+          <Route path="/shift-report" element={<PrivateRoute><ShiftReport /></PrivateRoute>} />
+          <Route path="/billlist-credit" element={<PrivateRoute><BillListScreen /></PrivateRoute>} />
+          <Route path="/add-productmaster" element={<PrivateRoute><ProductMaster /></PrivateRoute>} />
+          <Route path="/add-customermaster" element={<PrivateRoute><CustomerMaster /></PrivateRoute>} />
+          <Route path="/assign-vehicle" element={<PrivateRoute><AssignVehicle /></PrivateRoute>} />
+          <Route path="/gst-bill" element={<PrivateRoute><GSTSalesForm /></PrivateRoute>} />
+          <Route path="/pump-config" element={<PrivateRoute><PumpConfiguration /></PrivateRoute>} />
+          <Route path="/pump-reading" element={<PrivateRoute><PumpClosingReading /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

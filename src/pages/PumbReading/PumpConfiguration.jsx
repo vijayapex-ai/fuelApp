@@ -1,7 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './PumpConfiguration.css';
+import {
+  Container,
+  Typography,
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Grid,
+  Divider,
+  Pagination,
+  Box,
+  IconButton
+} from '@mui/material';
 import { useUser } from '../../contextApi/UserContext';
+import PumpConfigForm from './PumbConfigurations/PumpConfigForm';
+import PumpConfigTable from './PumbConfigurations/PumpConfigTable';
 
 const PumpConfiguration = () => {
   const [productList, setProductList] = useState([]);
@@ -13,6 +35,8 @@ const PumpConfiguration = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
   const { user } = useUser();
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     getProducts();
@@ -26,6 +50,7 @@ const PumpConfiguration = () => {
       setProductList(res.data);
     } catch (err) {
       console.error('Error fetching products:', err);
+      setError('Failed to load products');
     }
   };
 
@@ -40,17 +65,19 @@ const PumpConfiguration = () => {
       setConfigurations(configsWithEdit);
     } catch (err) {
       console.error('Error fetching configurations:', err);
+      setError('Failed to load configurations');
     }
   };
 
   const fetchOpeningReadings = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/pump-config/opening', {
-        params: { shift: user.shiftNo, date:user.shiftDate }
+        params: { shift: user.shiftNo, date: user.shiftDate }
       });
       setReadings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching opening readings:', err);
+      setError('Failed to load opening readings');
     }
   };
 
@@ -73,17 +100,17 @@ const PumpConfiguration = () => {
   const submitData = async () => {
     const isValid = rows.every(row => row.productId && row.productName && row.pumpCode);
     if (!isValid) {
-      alert("Please fill all fields before submitting.");
+      setError("Please fill all fields before submitting.");
       return;
     }
 
-    const cleanData = rows.map(row => ({
-      productCode: row.productId,
-      productName: row.productName,
-      pumpCode: row.pumpCode,
-    }));
-
     try {
+      const cleanData = rows.map(row => ({
+        productCode: row.productId,
+        productName: row.productName,
+        pumpCode: row.pumpCode,
+      }));
+
       await axios.post('http://localhost:5000/api/pump-config', cleanData);
 
       const initialReadingEntries = rows.map(row => ({
@@ -105,9 +132,17 @@ const PumpConfiguration = () => {
       fetchConfigurations();
       fetchOpeningReadings();
       setRows([{ productId: '', productName: '', pumpCode: '', initialReading: '' }]);
+      setSuccess('Configuration saved successfully!');
+      setError(null);
     } catch (err) {
       console.error('Error submitting data:', err);
+      setError('Failed to save configuration');
+      setSuccess(null);
     }
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -115,128 +150,59 @@ const PumpConfiguration = () => {
   const currentRecords = configurations.slice(indexOfFirstRecord, indexOfLastRecord);
 
   return (
-    <div className="pump-config-container">
-      <h2>Pump Configuration</h2>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Pump Configuration
+        </Typography>
 
-      {rows.map((row, index) => (
-        <div key={index} className="pump-row">
-          <select
-            value={row.productId}
-            onChange={(e) => {
-              const selected = productList.find(p => p.productId === parseInt(e.target.value));
-              updateRow(index, 'productId', selected?.productId || '');
-              updateRow(index, 'productName', selected?.name || '');
-            }}
-          >
-            <option value="">Select Product ID</option>
-            {productList.map(product => (
-              <option key={product.productId} value={product.productId}>
-                {product.productId}
-              </option>
-            ))}
-          </select>
+        {error && (
+          <Box sx={{ mb: 2 }}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        )}
+        {success && (
+          <Box sx={{ mb: 2 }}>
+            <Alert severity="success">{success}</Alert>
+          </Box>
+        )}
 
-          <input placeholder="Product Name" value={row.productName} readOnly />
+        <Divider sx={{ my: 3 }} />
 
-          <input
-            placeholder="Pump Code"
-            value={row.pumpCode}
-            onChange={(e) => updateRow(index, 'pumpCode', e.target.value)}
+        <PumpConfigForm
+          rows={rows}
+          productList={productList}
+          addRow={addRow}
+          removeRow={removeRow}
+          updateRow={updateRow}
+          submitData={submitData}
+        />
+
+        <Divider sx={{ my: 3 }} />
+
+        <Typography variant="h5" component="h2" gutterBottom>
+          Submitted Configurations
+        </Typography>
+
+        <PumpConfigTable
+          currentRecords={currentRecords}
+          readings={readings}
+          configurations={configurations}
+          setConfigurations={setConfigurations}
+          indexOfFirstRecord={indexOfFirstRecord}
+          fetchConfigurations={fetchConfigurations}
+        />
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination
+            count={Math.ceil(configurations.length / recordsPerPage)}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
           />
-
-          <input
-            placeholder="Initial Reading"
-            type="number"
-            value={row.initialReading}
-            onChange={(e) => updateRow(index, 'initialReading', e.target.value)}
-          />
-
-          {index > 0 && (
-            <button onClick={() => removeRow(index)}>Remove</button>
-          )}
-        </div>
-      ))}
-
-      <button onClick={addRow}>Add Row</button>
-      <button onClick={submitData}>Submit</button>
-
-      <h3>Submitted Configurations</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Product Code</th>
-            <th>Product Name</th>
-            <th>Pump Code</th>
-            <th>Opening Reading</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentRecords.map((config, idx) => {
-            const matchedReading = readings.find(r => r.pumpCode === config.pumpCode);
-            return (
-              <tr key={config.id}>
-                <td>{config.productCode}</td>
-                <td>{config.productName}</td>
-                <td>
-                  {config.isEditing ? (
-                    <input
-                      value={config.tempPumpCode}
-                      onChange={(e) => {
-                        const updated = [...configurations];
-                        updated[indexOfFirstRecord + idx].tempPumpCode = e.target.value;
-                        setConfigurations(updated);
-                      }}
-                    />
-                  ) : (
-                    config.pumpCode
-                  )}
-                </td>
-                <td>{matchedReading ? matchedReading.openingReading : '0.00'}</td>
-                <td>
-                  {config.isEditing ? (
-                    <button
-                      onClick={async () => {
-                        try {
-                          const updatedConfig = configurations[indexOfFirstRecord + idx];
-                          await axios.put(
-                            `http://localhost:5000/api/pump-config/${updatedConfig.id}`,
-                            { pumpCode: updatedConfig.tempPumpCode }
-                          );
-                          fetchConfigurations();
-                        } catch (err) {
-                          console.error('Error updating:', err);
-                        }
-                      }}
-                    >
-                      Save
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        const updated = [...configurations];
-                        updated[indexOfFirstRecord + idx].isEditing = true;
-                        setConfigurations(updated);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
-      <div className="pagination">
-        {Array.from({ length: Math.ceil(configurations.length / recordsPerPage) }, (_, i) => (
-          <button key={i + 1} onClick={() => setCurrentPage(i + 1)}>
-            {i + 1}
-          </button>
-        ))}
-      </div>
-    </div>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 

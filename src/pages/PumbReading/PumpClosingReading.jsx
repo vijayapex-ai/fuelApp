@@ -1,6 +1,24 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useUser } from '../../contextApi/UserContext';
+import {
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  Container,
+  Divider,
+  TextField,
+  Alert,
+  Grid
+} from '@mui/material';
+import PumpReadingsTable from './PumbReadings/PumpReadingsTable';
+import ProductSummaryTable from './PumbReadings/ProductSummaryTable';
 
 const PumpClosingReading = () => {
   const [readings, setReadings] = useState([]);
@@ -8,51 +26,50 @@ const PumpClosingReading = () => {
   const [isShiftClosed, setIsShiftClosed] = useState(false);
   const { user } = useUser();
   const [editMode, setEditMode] = useState(false);
+  const [billTotals, setBillTotals] = useState([]);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const shiftRef = useRef('');
   const dateRef = useRef('');
-  const [billTotals, setBillTotals] = useState([]);
 
   useEffect(() => {
     const fetchBillData = async () => {
-      
       try {
         const response = await axios.get('http://localhost:5000/api/billEntry/product-totals', {
           params: {
-            shiftDate:user.shiftDate,
+            shiftDate: user.shiftDate,
             shiftNo: user.shiftNo
           }
         });
         setBillTotals(response.data);
       } catch (err) {
         console.error('Error fetching bill totals:', err);
+        setError('Failed to load bill totals');
       }
     };
 
-      fetchBillData();
+    fetchBillData();
   }, [user.shiftNo, user.shiftDate]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-
-        // The backend will handle finding records that span this date
         const [configRes, openingRes, closingRes] = await Promise.all([
           axios.get('http://localhost:5000/api/pump-config'),
           axios.get(`http://localhost:5000/api/pump-config/opening`, {
             params: { 
               shift: user.shiftNo,
-              date: user.shiftDate // Use the login date directly
+              date: user.shiftDate
             }
           }),
           axios.get(`http://localhost:5000/api/pump-config/closing`, {
             params: {
               shift: user.shiftNo,
-              date: user.shiftDate // Use the login date directly
+              date: user.shiftDate
             }
           })
         ]);
-  
 
         const configData = configRes.data;
         const openingData = Array.isArray(openingRes.data) ? openingRes.data : [];
@@ -78,7 +95,6 @@ const PumpClosingReading = () => {
         });
 
         setReadings(merged);
-
         const shiftClosed = closingData.length > 0 && closingData.every(c => c.status === 'closed');
         setIsShiftClosed(shiftClosed);
 
@@ -89,52 +105,37 @@ const PumpClosingReading = () => {
 
       } catch (err) {
         console.error('Error fetching config/opening/closing data:', err);
+        setError('Failed to load pump readings');
       }
     };
 
     fetchData();
-  }, [ user.shiftNo]);
+  }, [user.shiftNo, user.shiftDate]);
 
-
-  // Enable edit mode only if the latest closed record is for the current shift
   const toggleEditMode = () => {
-      console.log("Current User Date:", user.shiftDate);
-      console.log("Current Readings:", readings);
+    const closedEntries = readings.filter(r => r.status === 'closed');
+    if (closedEntries.length === 0) {
+      setError("There are no closed shifts to edit.");
+      return;
+    }
 
-      // Find all closed entries
-      const closedEntries = readings.filter(r => r.status === 'closed');
-      console.log("Closed Entries Found:", closedEntries);
+    const lastClosedEntry = closedEntries
+      .sort((a, b) => new Date(b.readingDate) - new Date(a.readingDate) || b.shift - a.shift)[0];
 
-      if (closedEntries.length === 0) {
-          console.log("No Closed Entries Found, No Shift Data");
-          alert("There are no closed shifts to edit.");
-          return;
-      }
+    const entryDate = new Date(lastClosedEntry.readingDate || lastClosedEntry.date);
+    const userDate = new Date(user.shiftDate);
 
-      // Find the last closed entry (using readingDate instead of date)
-      const lastClosedEntry = closedEntries
-          .sort((a, b) => new Date(b.readingDate) - new Date(a.readingDate) || b.shift - a.shift)[0];
-
-      console.log("Last Closed Entry Found:", lastClosedEntry);
-
-      // Convert the dates to Date objects for comparison
-      const entryDate = new Date(lastClosedEntry.readingDate || lastClosedEntry.date);
-      const userDate = new Date(user.shiftDate);
-
-      // Check if this is the current shift and date
-      if (lastClosedEntry && 
-          entryDate.toDateString() === userDate.toDateString() && 
-          lastClosedEntry.shift === user.shiftNo) {
-          console.log("Enabling Edit Mode");
-          setEditMode(!editMode);
-      } else {
-          console.log("Edit Mode Not Allowed");
-          alert("Only the last closed shift for the current date and shift can be edited.");
-      }
+    if (lastClosedEntry && 
+        entryDate.toDateString() === userDate.toDateString() && 
+        lastClosedEntry.shift === user.shiftNo) {
+      setEditMode(!editMode);
+      setError(null);
+    } else {
+      setError("Only the last closed shift for the current date and shift can be edited.");
+    }
   };
 
   const handleInputChange = (index, field, value) => {
-     // Allow editing in edit mode or if shift isn't closed
     if (!editMode && isShiftClosed) return;
 
     const updated = [...readings];
@@ -167,8 +168,7 @@ const PumpClosingReading = () => {
   };
 
   const saveReading = async (entry) => {
-    try {
-            
+    try {            
       await axios.post('http://localhost:5000/api/pump-config/entry', {
         entries: [
           {
@@ -187,82 +187,76 @@ const PumpClosingReading = () => {
       });
     } catch (err) {
       console.error('Error saving entry:', err);
+      setError('Failed to save reading');
     }
   };
 
   const handleSave = async () => {
-  if (isShiftClosed && !editMode) {
-    console.log('Shift already closed and not in edit mode, aborting');
-    return;
-  }
+    if (isShiftClosed && !editMode) return;
 
-  try {
-    // Prepare entry data
-    const formattedEntries = readings.map(r => ({
-      id: r.id || null,
-      pumpCode: r.pumpCode,
-      productCode: r.productCode,
-      productName: r.productName,
-      openingReading: parseFloat(r.openingReading) || 0,
-      closingReading: parseFloat(r.closingReading) || 0,
-      saleLitre: parseFloat(r.saleLTR) || 0,
-      shift: user.shiftNo,
-      date: user.shiftDate,
-      readingDate: user.shiftDate,
-      status: editMode ? 'closed' : 'closed' // Maintain closed status
-    }));
-
-    // Save the entries
-    await axios.post('http://localhost:5000/api/pump-config/entry', {
-      entries: formattedEntries
-    });
-
-    if (!editMode) {
-      // Only create next shift openings if we're not in edit mode
-      const nextShiftNumber = user.shiftNo === '1' ? '2' : '1';
-      const nextShiftDate = user.shiftNo === '1' 
-        ? user.shiftDate 
-        : getNextDay(user.shiftDate);
-
-      const nextShiftEntries = formattedEntries.map(e => ({
-        pumpCode: e.pumpCode,
-        productCode: e.productCode,
-        productName: e.productName,
-        openingReading: e.closingReading,
-        closingReading: 0,
-        saleLitre: 0,
-        shift: nextShiftNumber,
+    try {
+      const formattedEntries = readings.map(r => ({
+        id: r.id || null,
+        pumpCode: r.pumpCode,
+        productCode: r.productCode,
+        productName: r.productName,
+        openingReading: parseFloat(r.openingReading) || 0,
+        closingReading: parseFloat(r.closingReading) || 0,
+        saleLitre: parseFloat(r.saleLTR) || 0,
+        shift: user.shiftNo,
         date: user.shiftDate,
-        readingDate: nextShiftDate,
-        status: 'pending'
+        readingDate: user.shiftDate,
+        status: editMode ? 'closed' : 'closed'
       }));
 
-      await axios.post('http://localhost:5000/api/pump-config/next-shift-opening', {
-        entries: nextShiftEntries,
-        currentShift: parseInt(user.shiftNo),
-        date: user.shiftDate
+      await axios.post('http://localhost:5000/api/pump-config/entry', {
+        entries: formattedEntries
       });
+
+      if (!editMode) {
+        const nextShiftNumber = user.shiftNo === '1' ? '2' : '1';
+        const nextShiftDate = user.shiftNo === '1' 
+          ? user.shiftDate 
+          : getNextDay(user.shiftDate);
+
+        const nextShiftEntries = formattedEntries.map(e => ({
+          pumpCode: e.pumpCode,
+          productCode: e.productCode,
+          productName: e.productName,
+          openingReading: e.closingReading,
+          closingReading: 0,
+          saleLitre: 0,
+          shift: nextShiftNumber,
+          date: user.shiftDate,
+          readingDate: nextShiftDate,
+          status: 'pending'
+        }));
+
+        await axios.post('http://localhost:5000/api/pump-config/next-shift-opening', {
+          entries: nextShiftEntries,
+          currentShift: parseInt(user.shiftNo),
+          date: user.shiftDate
+        });
+      }
+
+      setReadings(prev => prev.map(r => ({ ...r, status: 'closed' })));
+      setIsSaveButtonDisabled(true);
+      setIsShiftClosed(true);
+      setEditMode(false);
+      setSuccess(editMode ? 'Changes saved successfully!' : 'Shift closed successfully!');
+      setError(null);
+    } catch (err) {
+      console.error('Error:', err);
+      setError(`Failed to save: ${err.response?.data?.message || err.message}`);
+      setSuccess(null);
     }
+  };
 
-    // Update UI
-    setReadings(prev => prev.map(r => ({ ...r, status: 'closed' })));
-    setIsSaveButtonDisabled(true);
-    setIsShiftClosed(true);
-    setEditMode(false);
-    
-    alert(editMode ? 'Changes saved successfully!' : 'Shift closed successfully!');
-  } catch (err) {
-    console.error('Error:', err);
-    alert(`Failed to save: ${err.response?.data?.message || err.message}`);
-  }
-};
-
-// Helper function to get next day
-const getNextDay = (dateString) => {
-  const date = new Date(dateString);
-  date.setDate(date.getDate() + 1);
-  return date.toISOString().split('T')[0];
-};
+  const getNextDay = (dateString) => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split('T')[0];
+  };
 
   const calculateProductTotals = () => {
     const productMap = {};
@@ -303,140 +297,97 @@ const getNextDay = (dateString) => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>PUMP CLOSING READING - ENTRY</h2>
-      {isShiftClosed && (
-        <button
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          PUMP CLOSING READING - ENTRY
+        </Typography>
+
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
+        {isShiftClosed && (
+          <Button
             onClick={toggleEditMode}
-            style={{
-                padding: '8px 16px',
-                backgroundColor: editMode ? '#f44336' : '#2196F3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                marginBottom: '10px'
-            }}
-        >
+            variant="contained"
+            color={editMode ? "error" : "primary"}
+            sx={{ mb: 2 }}
+          >
             {editMode ? 'Cancel Edit' : 'Edit Mode'}
-        </button>
-    )}
+          </Button>
+        )}
 
-      <div style={{ marginBottom: '10px' }}>
-        <label><strong>Shift Date:</strong> {user.shiftDate}</label><br />
-        <label><strong>Shift No.:</strong> {user.shiftNo}</label><br />
-        <label><strong>User Name:</strong> {user.username}</label><br />
-        <label><strong>Current Time:</strong> {new Date().toLocaleTimeString()}</label>
-        {isShiftClosed && <div style={{ color: 'red', marginTop: '10px' }}>This shift has been closed!</div>}
-      </div>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="subtitle1">
+              <strong>Shift Date:</strong> {user.shiftDate}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="subtitle1">
+              <strong>Shift No.:</strong> {user.shiftNo}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="subtitle1">
+              <strong>User Name:</strong> {user.username}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="subtitle1">
+              <strong>Current Time:</strong> {new Date().toLocaleTimeString()}
+            </Typography>
+          </Grid>
+        </Grid>
 
-      <table border="1" cellPadding="10" cellSpacing="0" style={{ width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Pump Code</th>
-            <th>Product Name</th>
-            <th>Opening Reading</th>
-            <th>Closing Reading</th>
-            <th>SALE LTR</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {readings.map((r, index) => (
-            <tr key={r.pumpCode} style={{ 
-              backgroundColor: r.status === 'closed' ? '#f0f0f0' : 'transparent'
-            }}>
-              <td>{r.pumpCode}</td>
-              <td>{r.productName}</td>
-              <td>
-                <input 
-                  type="number" 
-                  value={r.openingReading} 
-                  readOnly 
-                  style={{ width: '80%' }}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  value={r.closingReading}
-                  onChange={(e) => handleInputChange(index, 'closingReading', e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  readOnly={(r.status === 'closed' && !editMode) || (isShiftClosed && !editMode)}
-                  style={{ 
-                    width: '80%',
-                    backgroundColor: editMode ? '#fffacd' : 'transparent'
-                  }}
-                />
-              </td>
-              <td>{r.saleLTR}</td>
-              <td>{r.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {isShiftClosed && (
+          <Alert severity="info" sx={{ mb: 3 }}>
+            This shift has been closed!
+          </Alert>
+        )}
 
-      <div style={{ marginTop: '30px' }}>
-        <h3>Product Summary</h3>
-        <table border="1" cellPadding="10" cellSpacing="0" style={{ width: '100%', marginTop: '10px' }}>
-          <thead>
-            <tr>
-              <th>No. of Pumps</th>
-              <th>Product Name</th>
-              <th>By Reading</th>
-              <th>By Bill (LTR)</th>
-              <th>Diff (Reading - Bill)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {calculateProductTotals().map((product, index) => (
-              <tr key={index}>
-                <td>{product.pumpCount}</td>
-                <td>{product.productName}</td>
-                <td>{product.saleTotal}</td>
-                <td>{product.billQty}</td>
-                <td>{product.difference}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {editMode ? (
-        <button
-            onClick={handleSave}
-            style={{ 
-                marginLeft: '10px',
-                padding: '8px 16px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-            }}
-        >
-            Save Changes
-        </button>
-    ) : (
-        <button
-            onClick={handleSave}
-            disabled={isSaveButtonDisabled}
-            style={{ 
-                marginLeft: '10px',
-                padding: '8px 16px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-            }}
-        >
-            Save/Close
-        </button>
-    )}
+        <Divider sx={{ my: 3 }} />
 
+        <PumpReadingsTable 
+          readings={readings} 
+          editMode={editMode}
+          isShiftClosed={isShiftClosed}
+          handleInputChange={handleInputChange}
+          handleKeyDown={handleKeyDown}
+        />
 
-    </div>
+        <Divider sx={{ my: 3 }} />
+
+        <Typography variant="h5" component="h2" gutterBottom>
+          Product Summary
+        </Typography>
+
+        <ProductSummaryTable productTotals={calculateProductTotals()} />
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+          {editMode ? (
+            <Button
+              onClick={handleSave}
+              variant="contained"
+              color="success"
+              size="large"
+            >
+              Save Changes
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSave}
+              disabled={isSaveButtonDisabled}
+              variant="contained"
+              color="success"
+              size="large"
+            >
+              Save/Close
+            </Button>
+          )}
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 

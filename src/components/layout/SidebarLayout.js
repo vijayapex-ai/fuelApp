@@ -61,7 +61,7 @@ const SidebarLayout = () => {
   return (
     <div className="layout-container">
       <Sidebar />
-      <main className="main-content">
+      <main className="main-content" style={{padding:'10px'}}>
         <Outlet />
       </main>
     </div>
